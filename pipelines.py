@@ -139,7 +139,14 @@ class QGPipeline:
                 
                 answer_text = answer_text.strip()
                 
-                ans_start_idx = sent.index(answer_text)
+                # FIX: ValueError where answer isn't actually in the sentences
+                # ORIGINAL: ans_start_idx = sent.index(answer_text)
+                if answer_text in sent: 
+                    ans_start_idx = sent.index(answer_text) 
+                else:
+                    logging.info(f"Exact text of ANSWER `{answer_text}' not found in SENTENCE `{sent}'. SKIPPING...")
+                    continue
+                # ENDFIX
                 
                 sent = f"{sent[:ans_start_idx]} <hl> {answer_text} <hl> {sent[ans_start_idx + len(answer_text): ]}"
                 sents_copy[i] = sent
