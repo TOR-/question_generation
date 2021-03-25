@@ -140,12 +140,16 @@ class QGPipeline:
                 answer_text = answer_text.strip()
                 
                 # FIX: ValueError where answer isn't actually in the sentences
+                #   ValueError: substring not found
                 # ORIGINAL: ans_start_idx = sent.index(answer_text)
                 if answer_text in sent: 
-                    ans_start_idx = sent.index(answer_text) 
+                    ans_start_idx = sent.index(answer_text)
+                elif answer_text.replace('<pad> ','') in sent:
+                    # FIXME: I don't know why this should be happening, but it does, so this fixes it
+                    ans_start_idx = sent.index(answer_text.replace('<pad> ',''))
                 else:
-                    logging.info(f"Exact text of ANSWER `{answer_text}' not found in SENTENCE `{sent}'. SKIPPING...")
-                    continue
+                    #logging.info(f"Exact text of ANSWER `{answer_text}' not found in SENTENCE `{sent}'. SKIPPING...")
+                    continue 
                 # ENDFIX
                 
                 sent = f"{sent[:ans_start_idx]} <hl> {answer_text} <hl> {sent[ans_start_idx + len(answer_text): ]}"
